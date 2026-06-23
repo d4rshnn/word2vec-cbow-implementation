@@ -1,203 +1,124 @@
-# PAPER_NOTES.md
+# PAPER_NOTES
 
-# Efficient Estimation of Word Representations in Vector Space
+## Paper
 
-**Authors:** Tomas Mikolov, Kai Chen, Greg Corrado, Jeffrey Dean
-**Year:** 2013
-
----
-
-# 1. Central Claim of the Paper
-
-The main claim of this paper is that high-quality word embeddings can be learned using much simpler architectures than the neural language models that were commonly used at the time.
-
-The authors introduce two models, **CBOW (Continuous Bag of Words)** and **Skip-Gram**, and show that these models can learn meaningful word representations while requiring significantly less computational cost and training time.
-
-Even though the architectures are simpler, the learned word vectors are still able to capture useful semantic and syntactic relationships between words.
+Efficient Estimation of Word Representations in Vector Space  
+Tomas Mikolov et al. (2013)
 
 ---
 
-# 2. Problem Being Solved
+## 1. What is the paper claiming?
 
-Traditional NLP systems usually treat words as independent symbols. Because of this, they do not naturally understand relationships between words.
+The main claim of this paper is that useful word embeddings can be learned using much simpler architectures than previous neural language models.
 
-For example, a traditional system does not know that:
+Earlier models such as NNLM and RNNLM could learn good word representations, but they required a large amount of computation and training time.
 
-* King and Queen are related
-* Paris and France are related
-* Big and Bigger are related
+The authors argue that simpler models can learn embeddings of similar quality while being significantly faster to train.
 
-The goal of this paper is to learn vector representations of words so that words with similar meanings or relationships are located close to each other in the vector space.
+The two architectures proposed in the paper are:
 
----
+- CBOW (Continuous Bag of Words)
+- Skip-Gram
 
-# 3. Previous Approaches
-
-Before introducing CBOW and Skip-Gram, the paper discusses older neural language models.
-
-### NNLM (Neural Network Language Model)
-
-* Learns useful word vectors
-* Uses hidden layers and many parameters
-* Computationally expensive
-* Slow to train on large datasets
-
-### RNNLM (Recurrent Neural Network Language Model)
-
-* Uses information from previous words
-* Can model longer context
-* Produces good results
-* Requires even more computation and training resources
-
-The authors observed that these models worked well but were difficult to train efficiently on very large datasets.
+The paper shows that these models are able to capture meaningful relationships between words while reducing computational cost.
 
 ---
 
-# 4. Proposed Method
+## 2. What architecture needs to be implemented?
 
-The paper introduces two new architectures for learning word embeddings.
+For this task, I chose to implement the CBOW architecture.
 
-## CBOW (Continuous Bag of Words)
+### CBOW Idea
 
-The CBOW model predicts the current word using the surrounding context words.
+CBOW predicts a target word using its surrounding context words.
 
 Example:
 
 Context words:
 
-I, love, programming
+king is ____ man
 
 Target word:
 
-competitive
+a
 
-The model uses the surrounding words as input and tries to predict the missing word in the middle.
+The surrounding words are converted into embeddings, combined together, and then used to predict the missing word.
 
-### Advantages
+### Why CBOW?
 
-* Simple architecture
-* Fast training
-* Efficient on large datasets
-* Produces useful word embeddings
+I selected CBOW because:
 
----
+- It is simpler to understand and implement.
+- It trains faster than many older language models.
+- It is one of the main contributions of the paper.
+- It still learns useful word embeddings despite its simplicity.
 
-## Skip-Gram
+### Main Components Used
 
-The Skip-Gram model works in the opposite direction.
+- Vocabulary creation
+- Context-target pair generation
+- Embedding layer
+- Linear output layer
+- Cross-entropy loss
+- Adam optimizer
 
-Instead of predicting the current word from the context, it predicts the surrounding context words from the current word.
-
-Example:
-
-Input word:
-
-competitive
-
-Predicted context:
-
-I, love, programming
-
-### Advantages
-
-* Learns high-quality embeddings
-* Performs well on semantic tasks
-* Works better with rare words
+The implementation follows the overall CBOW idea presented in the paper, but uses a much smaller dataset and model size because of limited compute resources.
 
 ---
 
-# 5. Dataset Used in the Paper
+## 3. Dataset, Evaluation Metric and Baseline
 
-The original paper trained its models on a very large Google News corpus containing approximately **6 billion words**.
+### Dataset
 
-Because reproducing this setup requires significant computational resources, my implementation uses a much smaller custom corpus for demonstration purposes.
+The original paper was trained on the Google News corpus containing billions of words.
 
-The goal of my implementation was to understand and reproduce the core CBOW architecture rather than match the exact scale of the original paper.
+For this reproduction task, I used a small custom text corpus stored in `corpus.txt`.
 
----
+The goal was not to match the paper's accuracy, but to reproduce the core CBOW learning process.
 
-# 6. Evaluation Method
+### Evaluation
 
-The paper evaluates word embeddings using semantic and syntactic analogy tasks.
+I evaluated the learned embeddings using:
 
-The idea is to check whether relationships between words are preserved inside the learned vector space.
+1. Similarity tests
 
-Some examples used in the paper include:
+Examples:
 
-### Semantic Relationships
+- king
+- queen
+- student
+- teacher
+- city
 
-* Paris : France
-* Berlin : Germany
-* King : Queen
-* Man : Woman
+The model checks which words are closest in the embedding space.
 
-### Syntactic Relationships
+2. Analogy tests
 
-* Big : Bigger
-* Small : Smaller
-* Walk : Walked
-* Work : Works
+Examples:
 
-The paper uses vector arithmetic to test these relationships.
+man : king :: woman : ?
 
-A famous example shown in the paper is:
+boy : prince :: girl : ?
 
-King - Man + Woman ≈ Queen
+These tests are inspired by the word relationship experiments described in the paper.
 
-If the model learns good embeddings, these relationships can be recovered from the vector space.
+### Baselines Mentioned in the Paper
 
----
+The paper compares CBOW and Skip-Gram against older language models such as:
 
-# 7. Key Findings from the Paper
+- NNLM (Neural Network Language Model)
+- RNNLM (Recurrent Neural Network Language Model)
 
-Some important findings reported by the authors are:
-
-* Increasing training data improves performance.
-* Larger embedding dimensions improve performance.
-* CBOW trains very quickly while maintaining good accuracy.
-* Skip-Gram generally learns stronger semantic relationships.
-* Word embeddings can capture meaningful relationships between words.
-
-The paper demonstrates that simple architectures can achieve strong results without requiring extremely complex neural networks.
+The authors show that the newer architectures achieve strong results while requiring less computation.
 
 ---
 
-# 8. Learned Relationships
+## My Understanding
 
-One of the most interesting observations from the paper is that word embeddings capture relationships between words.
+My biggest takeaway from this paper is that model simplicity can sometimes be more important than model complexity.
 
-Examples include:
+The authors showed that CBOW and Skip-Gram can learn meaningful word relationships without requiring extremely complicated architectures.
 
-* Paris - France + Italy ≈ Rome
-* King - Man + Woman ≈ Queen
-* Big - Bigger + Small ≈ Smaller
+This idea later became the foundation of Word2Vec and influenced many later NLP models.
 
-These examples show that semantic and syntactic information is encoded inside the vector space learned by the model.
-
----
-
-# 9. My Implementation
-
-For this task, I implemented a **simplified CBOW model using PyTorch**.
-
-The implementation performs the following steps:
-
-1. Reads a text corpus.
-2. Creates context-target training pairs.
-3. Builds a vocabulary.
-4. Learns word embeddings using the CBOW architecture.
-5. Trains the model using cross-entropy loss and gradient descent.
-6. Extracts the learned word embeddings.
-7. Uses cosine similarity to inspect relationships between words.
-
-Due to limited time and computational resources, I used a small custom dataset instead of the original Google News corpus used in the paper.
-
-Although the results are not directly comparable to the paper's large-scale experiments, the implementation successfully demonstrates the core idea behind CBOW and how word embeddings can be learned from surrounding context.
-
----
-
-# 10. Personal Understanding
-
-My main takeaway from this paper is that useful word representations do not necessarily require very deep or complex neural networks.
-
-The CBOW and Skip-Gram architectures are relatively simple, but they are still capable of learning meaningful relationships between words. This paper also helped me understand the basic idea of word embeddings and how vector representations can capture semantic information in natural language.
+While my implementation is a simplified version, it helped me understand how embeddings are learned and how semantic relationships can be represented using vectors.
